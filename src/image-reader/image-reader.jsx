@@ -23,7 +23,7 @@ function ImageReader() {
             <canvas className={classes.canvas} id="uploadedImage" />
             <img className={classes.uploadedImage} src={file} id="image"/>
             <br />
-            {imageData.length > 0 && (
+            {/* {imageData.length > 0 && (
                 <h3>Evaluated {hexColors.length} pixels / {imageData.length/4} pixels</h3>
             )}
             <ProgressBar
@@ -31,7 +31,7 @@ function ImageReader() {
                 //now={(hexColors.length)/(imageData.length/4)*100}
                 now={50}
                 label={`50%`}
-            />
+            /> */}
         </div>
     );
 }

@@ -1,11 +1,10 @@
-import { withWidth } from "@material-ui/core";
-import { React, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default () => {
   const [file, setFile] = useState({});
   const [imageData, setImageData] = useState([]);
   const [hexColors, setHexColors] = useState([]);
-  const [colorCounts, setColorCounts] = useState([{ color: "", count: 0 }]);
+  const [colorCounts, setColorCounts] = useState();
 
   const handleUpload = (event) => {
     const newFile = URL.createObjectURL(event.target.files[0]);
@@ -35,31 +34,25 @@ export default () => {
   const convertToHex = () => {
     let chunkSize = 4;
     let startPoint = 0;
-    //replace 200 with imageData.length
-    for (let i = startPoint; i < 1000; i += chunkSize) {
+    let newHexColors = [];
+    //replace 1000 with imageData.length -- for ref each 4 is equal to 1 pixel
+    for (let i = startPoint; i < imageData.length; i += chunkSize) {
       let chunk = [];
       let end = startPoint + 4;
       for (let j = startPoint; j < end; j++) {
         chunk.push(imageData[j]);
-        console.log("chunk ", startPoint, ": ", chunk);
       }
       //now work with 'chunk...[0][1][2] to calc hex value and store that in array
       //This process is ignoring the opacity for now (4th val of a chunk)
       let hexString = "#";
       for (let k = 0; k < chunk.length - 1; k++) {
-        //Convert chunk[k] to hex
-        let hexVal = hexConvertor(chunk[k]);
-        //Append to hex string
-        hexString = hexString + hexVal;
+        let hexVal = hexConvertor(chunk[k]);//Convert chunk[k] to hex
+        hexString = hexString + hexVal;//Append to hex string
       }
-      //Add hexString to hexColors
-      hexColors.push(hexString);
-      //setHexColors(hexColors)
-      setHexColors(hexColors);
-      //Increment to the next chunk
-      startPoint += 4;
-      console.log(hexColors);
+      newHexColors.push(hexString);//Add hexString to hexColors    
+      startPoint += 4;//Increment to the next chunk
     }
+    setHexColors(newHexColors);
   };
 
   //Questions
@@ -68,54 +61,42 @@ export default () => {
   // Looks like each pixel is 4 pieces of data (R, G, B, a (opacity)) -> ignoring this as it shouldnt be reqd.
 
   const getCounts = () => {
-    //run through hexColors
-    //take each item
-    //run through hexColors
-    //see if the hex string matches
-    //increment count for that color?
-
-    let tempArray = hexColors;
-    console.log("temp ", tempArray);
-
-    for (let i = 0; i < tempArray.length; i++) {
-      let colors = [];
-      let selectedColor = tempArray[0];
-      colors.push(selectedColor);
-      tempArray.shift();
-      for (let j = 0; j < tempArray.length; j++) {
-        if ((selectedColor = tempArray[j])) {
-          colors.push(tempArray[j]);
-          tempArray.splice(j, 1);
-        }
+    const newColorCounts = [];
+    hexColors.forEach((hexColor) => {
+      let exists = newColorCounts.find(count => count.color === hexColor);
+      if(exists !== undefined) {
+        exists.count +=1;
       }
-      let newColor = {
-        color: colors[0],
-        count: colors.length,
-      };
-      console.log("tempAfter", tempArray);
-      console.log(newColor);
-      //setColorCounts(...colorCounts, newColor);
-    }
-
-    //loop hexColors->make nmew array to loop through
-    //get item -> check its not alreadyt been grouped (exists in array?)
-    //loop again looking for others that eq (not already been grouped -> maybe remove from array)
-    //add these to new array
-    //exports each time are the first item (color name) and that array.length
+      else {
+        let countItem = {
+          color: hexColor,
+          count: 1
+        };
+        newColorCounts.push(countItem);
+      }
+    })
+    setColorCounts(newColorCounts);
   };
 
+  // Runs convertToHex when there is imageData (image has been uploaded)
   useEffect(() => {
-    console.log("data", imageData);
-
     if (imageData.length > 0) {
       convertToHex();
-      getCounts();
     }
   }, [imageData]);
 
+  // Runs the count function when we have an array of hex colors
   useEffect(() => {
-    console.log("counts", colorCounts);
-  }, [colorCounts]);
+    if(hexColors) {
+      getCounts();
+    }
+  }, [hexColors]);
+
+  useEffect(() => {
+    if(colorCounts) {
+      console.log("counts", colorCounts);
+    }
+  },[colorCounts])
 
   return {
     file,
