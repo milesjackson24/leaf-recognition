@@ -13,9 +13,12 @@ function ImageReader() {
         handleUpload,
         getImageData,
         imageData,
-        hexColors
+        hexColors,
+        colorCounts
     } = useHooks();
     const classes = useStyles();
+    console.log(colorCounts)
+
     return (
         <div>
             <input type="file" onChange={handleUpload}/>
@@ -23,6 +26,9 @@ function ImageReader() {
             <canvas className={classes.canvas} id="uploadedImage" />
             <img className={classes.uploadedImage} src={file} id="image"/>
             <br />
+            {colorCounts?.map((color) => (
+                <div key={color.clusterColor} style={{ backgroundColor: color.clusterColor, width: "100px", height: "100px" }}><p>{color.clusterColor} {color.count}</p></div>
+            ))}
             {/* {imageData.length > 0 && (
                 <h3>Evaluated {hexColors.length} pixels / {imageData.length/4} pixels</h3>
             )}
